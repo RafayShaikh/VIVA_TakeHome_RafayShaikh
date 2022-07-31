@@ -36,13 +36,13 @@ const EmploymentInformation: NextPage = () => {
   ) => {
     clearErrors(e);
 
-    if (e.target.id === "employerName" && e.target.value !== "") {
+    if (e.target.id === "employerName") {
       setEmployerName(e);
     }
-    if (e.target.id === "grossSalary" && e.target.value !== "") {
+    if (e.target.id === "grossSalary") {
       setGrossSalary(e);
     }
-    if (e.target.id === "workStatus" && e.target.value) {
+    if (e.target.id === "workStatus") {
       setWorkStatus(e);
     }
   };
@@ -82,10 +82,8 @@ const EmploymentInformation: NextPage = () => {
     }));
   };
   const setGrossSalary = (e: any) => {
-    if (e.target.value) {
-      if (e.target.value < 1000) {
-        setErrorsFunction(e, "Please enter an amount above 1000");
-      }
+    if (e.target.value < 1000) {
+      setErrorsFunction(e, "Please enter an amount above 1000");
     }
     values?.setInputValues((prev: any) => ({
       ...prev,
@@ -96,7 +94,7 @@ const EmploymentInformation: NextPage = () => {
     if (e.target.value !== "") {
       values?.setInputValues((prev: any) => ({
         ...prev,
-        [e.target.id]: parseFloat(e.target.value) * 100,
+        [e.target.id]: e.target.value,
       }));
     } else {
       setErrorsFunction(e);
@@ -130,6 +128,7 @@ const EmploymentInformation: NextPage = () => {
               value={values.inputValues.employerName}
               onBlur={handleBlur}
               onChange={handleChange}
+              error={errors.employerName !== ""}
             ></StyledInput>
             <ErrorText>
               {errors.employerName !== "" ? errors.employerName : null}
@@ -143,6 +142,7 @@ const EmploymentInformation: NextPage = () => {
               id="grossSalary"
               value={values.inputValues.grossSalary}
               onChange={handleChange}
+              error={errors.grossSalary !== ""}
             ></StyledInput>
             <ErrorText>
               {errors.grossSalary !== "" ? errors.grossSalary : null}
@@ -155,6 +155,7 @@ const EmploymentInformation: NextPage = () => {
               id="workStatus"
               value={values.inputValues.workStatus}
               onChange={handleChange}
+              error={errors.workStatus !== ""}
             >
               <StyledOption value=""></StyledOption>
               <StyledOption value="full-time">Full-Time</StyledOption>

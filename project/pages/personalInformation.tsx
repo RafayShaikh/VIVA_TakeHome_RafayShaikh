@@ -26,16 +26,13 @@ const PersonalInformation: NextPage = () => {
   };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     clearErrors(e);
-    if (
-      (e.target.id === "firstName" || e.target.id === "lastName") &&
-      e.target.value !== ""
-    ) {
+    if (e.target.id === "firstName" || e.target.id === "lastName") {
       setFirstLastNames(e);
     }
     if (e.target.id === "dob" && e.target.type === "date" && e.target.value) {
       setDOB(e);
     }
-    if (e.target.id === "ssn" && e.target.type === "text" && e.target.value) {
+    if (e.target.id === "ssn") {
       setSSN(e);
     }
   };
@@ -112,7 +109,7 @@ const PersonalInformation: NextPage = () => {
     );
   };
   const isValidSSN = (val: string) => {
-    return !val.match("111111111");
+    return !val.match("111111111") && !isNaN(+val);
     //We can always add more here
   };
   useEffect(() => {
@@ -143,6 +140,7 @@ const PersonalInformation: NextPage = () => {
               value={values.inputValues.firstName}
               onChange={handleChange}
               onBlur={handleBlur}
+              error={errors.firstName !== ""}
             ></StyledInput>
             <ErrorText>
               {errors.firstName !== "" ? errors.firstName : null}
@@ -156,6 +154,7 @@ const PersonalInformation: NextPage = () => {
               value={values.inputValues.lastName}
               onChange={handleChange}
               onBlur={handleBlur}
+              error={errors.lastName !== ""}
             ></StyledInput>
             <ErrorText>
               {errors.lastName !== "" ? errors.lastName : null}
@@ -168,6 +167,7 @@ const PersonalInformation: NextPage = () => {
               id="dob"
               value={values.inputValues.dob}
               onChange={handleChange}
+              error={errors.dob !== ""}
             ></StyledInput>
             <ErrorText>{errors.dob !== "" ? errors.dob : null}</ErrorText>
           </SectionWrapper>
@@ -179,6 +179,7 @@ const PersonalInformation: NextPage = () => {
               id="ssn"
               value={values.inputValues.ssn}
               onChange={handleChange}
+              error={errors.ssn !== ""}
             ></StyledInput>
             <ErrorText>{errors.ssn !== "" ? errors.ssn : null}</ErrorText>
           </SectionWrapper>
