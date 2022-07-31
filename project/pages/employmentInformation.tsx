@@ -1,8 +1,9 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styled from "styled-components";
+import AppContext from "../AppContext";
 import LoanOffer from "../components/LoanOffer";
 
 const loanAmount = {
@@ -11,8 +12,100 @@ const loanAmount = {
 };
 
 const EmploymentInformation: NextPage = () => {
+  const values = useContext(AppContext);
   const router = useRouter();
+  const [errors, setErrors] = useState({
+    employerName: "",
+    grossSalary: "",
+    workStatus: "",
+  });
   const [isModalShown, setIsModalShown] = useState(false);
+
+  const isSmallLoan =
+    Number(values.inputValues.grossSalary) < 15000 ||
+    values.inputValues.grossSalary === "part-time";
+
+  const handleBlur = (e: any) => {
+    if (e.target.id === "employerName" && e.target.value === "") {
+      setErrorsFunction(e, "Please enter a name");
+    }
+  };
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    clearErrors(e);
+
+    if (e.target.id === "employerName" && e.target.value !== "") {
+      setEmployerName(e);
+    }
+    if (e.target.id === "grossSalary" && e.target.value !== "") {
+      setGrossSalary(e);
+    }
+    if (e.target.id === "workStatus" && e.target.value) {
+      setWorkStatus(e);
+    }
+  };
+  const handleNext = (e: any) => {
+    let inputObj = values.inputValues;
+    if (
+      inputObj.employerName !== "" &&
+      inputObj.workStatus !== "" &&
+      inputObj.grossSalary !== "" &&
+      errors.employerName === "" &&
+      errors.grossSalary === "" &&
+      errors.workStatus === ""
+    ) {
+      setIsModalShown(true);
+    } else {
+      alert("Please completely fill-out the form.");
+    }
+  };
+  const setErrorsFunction = (e: any, message?: string) => {
+    setErrors((prev: any) => ({
+      ...prev,
+      [e.target.id]: message || "Please enter a valid value",
+    }));
+  };
+  const clearErrors = (e: any) => {
+    setErrors((prev: any) => ({
+      ...prev,
+      [e.target.id]: "",
+    }));
+  };
+  const setEmployerName = (e: any) => {
+    values?.setInputValues((prev: any) => ({
+      ...prev,
+      [e.target.id]: e.target.value,
+    }));
+  };
+  const setGrossSalary = (e: any) => {
+    if (e.target.value) {
+      if (e.target.value < 1000) {
+        setErrorsFunction(e, "Please enter an amount above 1000");
+        values?.setInputValues((prev: any) => ({
+          ...prev,
+          [e.target.id]: "",
+        }));
+      } else {
+        values?.setInputValues((prev: any) => ({
+          ...prev,
+          [e.target.id]: Number(e.target.value).toFixed(2),
+        }));
+      }
+    } else {
+      setErrorsFunction(e);
+    }
+  };
+  const setWorkStatus = (e: any) => {
+    if (e.target.value !== "") {
+      values?.setInputValues((prev: any) => ({
+        ...prev,
+        [e.target.id]: e.target.value,
+      }));
+    } else {
+      setErrorsFunction(e);
+    }
+  };
 
   return (
     <div>
@@ -29,32 +122,51 @@ const EmploymentInformation: NextPage = () => {
             <StyledInput
               placeholder="Please Enter Your Employer Name"
               id="employerName"
+              value={values.inputValues.employerName}
+              onBlur={handleBlur}
+              onChange={handleChange}
             ></StyledInput>
+            <ErrorText>
+              {errors.employerName !== "" ? errors.employerName : null}
+            </ErrorText>
           </SectionWrapper>
           <SectionWrapper>
             <TextLabel htmlFor="grossSalary">Gross Salary</TextLabel>
             <StyledInput
+              type="number"
               placeholder="Please Enter Your Gross Salary"
               id="grossSalary"
+              value={values.inputValues.grossSalary}
+              onChange={handleChange}
             ></StyledInput>
+            <ErrorText>
+              {errors.grossSalary !== "" ? errors.grossSalary : null}
+            </ErrorText>
           </SectionWrapper>
           <SectionWrapper>
             <TextLabel htmlFor="workStatus">Work Status</TextLabel>
-            <StyledInput
-              placeholder="Please Enter Your Work Status"
+            <StyledSelect
+              placeholder="Please Select Your Work Status"
               id="workStatus"
-            ></StyledInput>
+              value={values.inputValues.workStatus}
+              onChange={handleChange}
+            >
+              <StyledOption value=""></StyledOption>
+              <StyledOption value="full-time">Full-Time</StyledOption>
+              <StyledOption value="part-time">Part-Time</StyledOption>
+            </StyledSelect>
+            {errors.workStatus !== "" ? errors.workStatus : null}
           </SectionWrapper>
-          <NextButton onClick={() => setIsModalShown(true)}>Next</NextButton>
-          <BackButton onClick={() => router.back()} type="submit">
-            Back
-          </BackButton>
+          <NextButton onClick={handleNext}>Next</NextButton>
+          <BackButton onClick={() => router.back()}>Back</BackButton>
         </EmploymentInformationForm>
         {isModalShown ? (
           <LoanOffer
             setIsModalShown={setIsModalShown}
-            amount={loanAmount.large.amount}
-            term={loanAmount.large.term}
+            amount={
+              isSmallLoan ? loanAmount.small.amount : loanAmount.large.amount
+            }
+            term={isSmallLoan ? loanAmount.small.term : loanAmount.large.term}
           />
         ) : null}
       </ContentWrapper>
@@ -89,6 +201,17 @@ const StyledInput = styled.input<{ error?: boolean }>`
   border-radius: 10px;
   border: ${(props) => (props.error ? "1px solid red" : "none")};
 `;
+const StyledSelect = styled.select<{ error?: boolean }>`
+  padding: 5px;
+  height: 35px;
+  border-radius: 10px;
+  border: ${(props) => (props.error ? "1px solid red" : "none")};
+`;
+const StyledOption = styled.option`
+  padding: 5px;
+  height: 35px;
+  border-radius: 10px;
+`;
 const SectionWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -115,5 +238,7 @@ const BackButton = styled(NextButton)`
     cursor: pointer;
   }
 `;
-
+const ErrorText = styled(TextLabel)`
+  color: red;
+`;
 export default EmploymentInformation;

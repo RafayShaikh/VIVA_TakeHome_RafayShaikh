@@ -7,7 +7,6 @@ import AppContext from "../AppContext";
 
 const PersonalInformation: NextPage = () => {
   const values = useContext(AppContext);
-  console.log(values);
   const router = useRouter();
   const [errors, setErrors] = useState({
     dob: "",
@@ -15,14 +14,13 @@ const PersonalInformation: NextPage = () => {
     lastName: "",
     ssn: "",
   });
-  console.log(errors);
 
   const handleBlur = (e: any) => {
     if (
       (e.target.id === "firstName" || e.target.id === "lastName") &&
       e.target.value === ""
     ) {
-      setErrorsFunction(e);
+      setErrorsFunction(e, "This field is required");
     }
   };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,17 +44,19 @@ const PersonalInformation: NextPage = () => {
       inputObj.firstName !== "" &&
       inputObj.lastName !== "" &&
       inputObj.dob !== "" &&
-      inputObj.firstName !== ""
+      errors.firstName === "" &&
+      errors.lastName === "" &&
+      errors.dob === ""
     ) {
       router.push("/employmentInformation");
     } else {
       alert("Please completely fill-out the form.");
     }
   };
-  const setErrorsFunction = (e: any) => {
+  const setErrorsFunction = (e: any, message?: string) => {
     setErrors((prev: any) => ({
       ...prev,
-      [e.target.id]: "Please enter a valid value",
+      [e.target.id]: message || "Please enter a valid value",
     }));
   };
   const clearErrors = (e: any) => {
@@ -87,7 +87,7 @@ const PersonalInformation: NextPage = () => {
         age: age,
       }));
     } else {
-      setErrorsFunction(e);
+      setErrorsFunction(e, "Age must be above 18 and below 125");
     }
   };
   const setSSN = (e: any) => {
@@ -126,6 +126,7 @@ const PersonalInformation: NextPage = () => {
             <StyledInput
               placeholder="Please Enter Your First Name"
               id="firstName"
+              value={values.inputValues.firstName}
               onChange={handleChange}
               onBlur={handleBlur}
             ></StyledInput>
@@ -138,6 +139,7 @@ const PersonalInformation: NextPage = () => {
             <StyledInput
               placeholder="Please Enter Your Last Name"
               id="lastName"
+              value={values.inputValues.lastName}
               onChange={handleChange}
               onBlur={handleBlur}
             ></StyledInput>
@@ -150,6 +152,7 @@ const PersonalInformation: NextPage = () => {
             <StyledInput
               type="date"
               id="dob"
+              value={values.inputValues.dob}
               onChange={handleChange}
             ></StyledInput>
             <ErrorText>{errors.dob !== "" ? errors.dob : null}</ErrorText>
@@ -160,6 +163,7 @@ const PersonalInformation: NextPage = () => {
               placeholder="Please Enter Your SSN"
               type="text"
               id="ssn"
+              value={values.inputValues.ssn}
               onChange={handleChange}
             ></StyledInput>
             <ErrorText>{errors.ssn !== "" ? errors.ssn : null}</ErrorText>
