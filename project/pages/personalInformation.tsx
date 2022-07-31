@@ -15,8 +15,7 @@ const PersonalInformation: NextPage = () => {
     ssn: "",
   });
   const [isNextAvailable, setIsNextAvailable] = useState(true);
-  console.log(values);
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (
       (e.target.id === "firstName" || e.target.id === "lastName") &&
       e.target.value === ""

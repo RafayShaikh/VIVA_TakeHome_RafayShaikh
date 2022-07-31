@@ -26,7 +26,7 @@ const EmploymentInformation: NextPage = () => {
     Number(values.inputValues.grossSalary) < 15000 ||
     values.inputValues.grossSalary === "part-time";
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (e.target.id === "employerName" && e.target.value === "") {
       setErrorsFunction(e, "Please enter a name");
     }
