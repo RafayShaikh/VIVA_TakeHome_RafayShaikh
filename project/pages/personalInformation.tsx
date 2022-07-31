@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import AppContext from "../AppContext";
 
@@ -14,7 +14,8 @@ const PersonalInformation: NextPage = () => {
     lastName: "",
     ssn: "",
   });
-
+  const [isNextAvailable, setIsNextAvailable] = useState(true);
+  console.log(values);
   const handleBlur = (e: any) => {
     if (
       (e.target.id === "firstName" || e.target.id === "lastName") &&
@@ -44,12 +45,16 @@ const PersonalInformation: NextPage = () => {
       inputObj.firstName !== "" &&
       inputObj.lastName !== "" &&
       inputObj.dob !== "" &&
+      inputObj.ssn !== "" &&
       errors.firstName === "" &&
       errors.lastName === "" &&
-      errors.dob === ""
+      errors.dob === "" &&
+      errors.ssn === ""
     ) {
+      setIsNextAvailable(true);
       router.push("/employmentInformation");
     } else {
+      setIsNextAvailable(false);
       alert("Please completely fill-out the form.");
     }
   };
@@ -93,24 +98,33 @@ const PersonalInformation: NextPage = () => {
   const setSSN = (e: any) => {
     clearErrors(e);
     let value = e.target.value.replace(/-/g, "");
-    if (value.length === 9 && isValidSSN(value)) {
-      e.target.value = e.target.value.replace(
-        /(\d{3})(\d{2})(\d{4})/,
-        "$1-$2-$3"
-      );
-      values?.setInputValues((prev: any) => ({
-        ...prev,
-        [e.target.id]: e.target.value,
-      }));
-    } else {
-      setErrorsFunction(e);
+
+    if (value.length !== 9 || !isValidSSN(value)) {
+      setErrorsFunction(e, "Please enter a valid SSN XXX-XX-XXXX");
     }
+    values?.setInputValues((prev: any) => ({
+      ...prev,
+      [e.target.id]: e.target.value,
+    }));
+    e.target.value = e.target.value.replace(
+      /(\d{3})(\d{2})(\d{4})/,
+      "$1-$2-$3"
+    );
   };
   const isValidSSN = (val: string) => {
     return !val.match("111111111");
     //We can always add more here
   };
-
+  useEffect(() => {
+    if (
+      errors.firstName === "" &&
+      errors.lastName === "" &&
+      errors.ssn === "" &&
+      errors.dob === ""
+    ) {
+      setIsNextAvailable(true);
+    }
+  }, [errors.firstName, errors.lastName, errors.ssn, errors.dob]);
   return (
     <div>
       <Head>
@@ -168,7 +182,9 @@ const PersonalInformation: NextPage = () => {
             ></StyledInput>
             <ErrorText>{errors.ssn !== "" ? errors.ssn : null}</ErrorText>
           </SectionWrapper>
-          <NextButton onClick={handleNext}>Next</NextButton>
+          <NextButton disabled={!isNextAvailable} onClick={handleNext}>
+            Next
+          </NextButton>
         </PersonalInformationForm>
       </ContentWrapper>
     </div>

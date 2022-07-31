@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import AppContext from "../AppContext";
 import LoanOffer from "../components/LoanOffer";
@@ -20,6 +20,7 @@ const EmploymentInformation: NextPage = () => {
     workStatus: "",
   });
   const [isModalShown, setIsModalShown] = useState(false);
+  const [isNextAvailable, setIsNextAvailable] = useState(true);
 
   const isSmallLoan =
     Number(values.inputValues.grossSalary) < 15000 ||
@@ -55,8 +56,10 @@ const EmploymentInformation: NextPage = () => {
       errors.grossSalary === "" &&
       errors.workStatus === ""
     ) {
+      setIsNextAvailable(true);
       setIsModalShown(true);
     } else {
+      setIsNextAvailable(false);
       alert("Please completely fill-out the form.");
     }
   };
@@ -82,30 +85,32 @@ const EmploymentInformation: NextPage = () => {
     if (e.target.value) {
       if (e.target.value < 1000) {
         setErrorsFunction(e, "Please enter an amount above 1000");
-        values?.setInputValues((prev: any) => ({
-          ...prev,
-          [e.target.id]: "",
-        }));
-      } else {
-        values?.setInputValues((prev: any) => ({
-          ...prev,
-          [e.target.id]: Number(e.target.value).toFixed(2),
-        }));
       }
-    } else {
-      setErrorsFunction(e);
     }
+    values?.setInputValues((prev: any) => ({
+      ...prev,
+      [e.target.id]: Number(e.target.value).toFixed(2),
+    }));
   };
   const setWorkStatus = (e: any) => {
     if (e.target.value !== "") {
       values?.setInputValues((prev: any) => ({
         ...prev,
-        [e.target.id]: e.target.value,
+        [e.target.id]: parseFloat(e.target.value) * 100,
       }));
     } else {
       setErrorsFunction(e);
     }
   };
+  useEffect(() => {
+    if (
+      errors.employerName === "" &&
+      errors.grossSalary === "" &&
+      errors.workStatus === ""
+    ) {
+      setIsNextAvailable(true);
+    }
+  }, [errors.employerName, errors.grossSalary, errors.workStatus]);
 
   return (
     <div>
@@ -157,7 +162,9 @@ const EmploymentInformation: NextPage = () => {
             </StyledSelect>
             {errors.workStatus !== "" ? errors.workStatus : null}
           </SectionWrapper>
-          <NextButton onClick={handleNext}>Next</NextButton>
+          <NextButton disabled={!isNextAvailable} onClick={handleNext}>
+            Next
+          </NextButton>
           <BackButton onClick={() => router.back()}>Back</BackButton>
         </EmploymentInformationForm>
         {isModalShown ? (

@@ -11,7 +11,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     age: 0,
     ssn: "",
     employerName: "",
-    grossSalary: 0,
+    grossSalary: null,
     workStatus: "",
   });
 
