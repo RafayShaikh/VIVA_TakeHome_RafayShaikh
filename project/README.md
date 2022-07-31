@@ -14,4 +14,10 @@ Next, to run the project please run
 npm run dev
 ```
 
+Finally, open
+
+```bash
+localhost:3000
+```
+
 ## For any inquiry about the project email me @ rafaysarr@gmail.com
